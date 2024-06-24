@@ -7,7 +7,6 @@
             <th>ID</th>
             <th>Stock Name</th>
             <th>Price</th>
-            <th>Buy Stock</th>
         </tr>
         </thead>
         <tbody>
@@ -16,7 +15,6 @@
                 <td>{{ $stock->id }}</td>
                 <td>{{ $stock->stock_name }}</td>
                 <td>{{ $stock->current_price }}</td>
-                <td><a href="/buy-stock?stock_id={{ $stock->id }}">Buy</a></td>
             </tr>
         @endforeach
         </tbody>

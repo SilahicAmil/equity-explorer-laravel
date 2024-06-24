@@ -1,11 +1,13 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\StockDataController;
+use App\Http\Controllers\StockController;
 
 Route::view('/', 'welcome');
 
-Route::get('/stocks', [StockDataController::class, 'index']);
+Route::get('/stocks', [StockController::class, 'index'])
+    ->middleware('auth', 'verified')
+    ->name('Market');
 
 
 Route::view('dashboard', 'dashboard')

@@ -3,10 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Stock;
-use App\Services\SupabaseService;
 use Illuminate\Http\Request;
 
-class StockDataController extends Controller
+class StockController extends Controller
 {
     public function index()
     {

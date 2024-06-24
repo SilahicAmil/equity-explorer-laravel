@@ -10,6 +10,10 @@ class StockTransaction extends Model
     use HasFactory;
 
     protected $table = 'stock_transactions';
+    // We use fillable here since we want mass assign
+    // these fields in the table
+    // Need to look into my diagram of how I have the tables setup so
+    // May change later on
     protected $fillable = [
         'user_id',
         'stock_name',
