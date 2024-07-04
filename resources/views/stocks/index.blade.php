@@ -18,6 +18,9 @@
             </tr>
         @endforeach
         </tbody>
+
     </table>
+
+    {{$stocks->links()}}
 
 </x-app-layout>

@@ -9,8 +9,8 @@ class StockController extends Controller
 {
     public function index()
     {
-        $stocks = Stock::limit(50)->get();
-        return view('stocks', compact('stocks'));
+        $stocks = Stock::limit(50)->paginate(25);
+        return view('stocks.index', compact('stocks'));
     }
 
 }
