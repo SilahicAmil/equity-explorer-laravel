@@ -17,7 +17,7 @@ class StockTransaction extends Model
     protected $fillable = [
         'user_id',
         'stock_name',
-        'bought_price',
+        'stock_price',
         'num_stock_traded',
         'transaction_total',
         'buy',
