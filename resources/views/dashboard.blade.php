@@ -11,7 +11,7 @@
                 <div class="p-6 text-gray-900 dark:text-gray-100">
                     {{ __("You're logged in!") }}
                 </div>
-                <a href="{{ url('/stocks') }}">
+                <a href="{{ url('/stocks') }}" class="text-white">
                     <button>View Stocks</button>
                 </a>
             </div>

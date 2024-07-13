@@ -12,13 +12,29 @@ use Illuminate\Support\Facades\Log;
 class StockTransactionController extends Controller
 {
 
+    /**
+     * @param  User  $user
+     * @param  string  $stock_name
+     * @param  int  $quantity
+     * @return bool
+     */
     private function userOwnsStock(User $user, string $stock_name, int $quantity) : bool
     {
+        // Make this better SoonTM
         $quantity_owned = StockTransaction::where('user_id', $user->id)
                                             ->where('stock_name', $stock_name)
                                             ->sum(DB::raw("CASE WHEN buy THEN num_stock_traded ELSE -num_stock_traded END"));
-        return $quantity_owned >= $quantity;
+        if ($quantity_owned >= $quantity) {
+            return true;
+        } else {
+            return false;
+        }
     }
+
+    /**
+     * @param  Request  $request
+     * @return RedirectResponse
+     */
     public function store(Request $request): RedirectResponse
     {
         // Validate the request data
@@ -40,7 +56,10 @@ class StockTransactionController extends Controller
 
     }
 
-    // Create one for selling stock also. Combined for now just for testing
+    /**
+     * @param  Request  $request
+     * @return RedirectResponse
+     */
     private function processBuyTransaction(Request $request) : RedirectResponse
     {
         Log::error('In Process Buy');
@@ -69,16 +88,20 @@ class StockTransactionController extends Controller
             ]);
         });
 
-
-        return redirect()->back()->with('success', 'Insufficient Funds');
+        return redirect()->back()->with('success', 'Stock Bought Successfully');
     }
 
+    /**
+     * @param  Request  $request
+     * @return RedirectResponse
+     */
     private function processSellTransaction(Request $request) : RedirectResponse
     {
         Log::error('In Process Sell');
         $user = User::find($request->user_id);
         $transaction_total = $request->num_stock_traded * $request->stock_price;
 
+        // Check if user owns stock in order to sell.
         if (!$this->userOwnsStock($user, $request->stock_name, $request->num_stock_traded)) {
             return redirect()->back()->with('error', 'You do not own this stock.');
         }
@@ -100,6 +123,6 @@ class StockTransactionController extends Controller
             ]);
         });
 
-        return redirect()->back()->with('success', 'Stock sold successfully!');
+        return redirect()->back()->with('success', 'Stock Sold Successfully!');
     }
 }
