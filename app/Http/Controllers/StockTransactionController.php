@@ -3,11 +3,22 @@
 namespace App\Http\Controllers;
 
 use App\Models\StockTransaction;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class StockTransactionController extends Controller
 {
+
+    private function userOwnsStock(User $user, string $stock_name, int $quantity) : bool
+    {
+        $quantity_owned = StockTransaction::where('user_id', $user->id)
+                                            ->where('stock_name', $stock_name)
+                                            ->sum(DB::raw("CASE WHEN buy THEN num_stock_traded ELSE -num_stock_traded END"));
+        return $quantity_owned >= $quantity;
+    }
     public function store(Request $request): RedirectResponse
     {
         // Validate the request data
@@ -20,27 +31,75 @@ class StockTransactionController extends Controller
             'transaction_type' => 'required|string|in:buy,sell',
         ]);
 
-        // Determine the transaction type
-        $isBuy = $request->transaction_type === 'buy';
-        $isSell = $request->transaction_type === 'sell';
+        // Determine the transaction type and use correct function
+        $transaction_type = $request->transaction_type;
 
-        $transaction_total = $request->num_stock_traded * $request->stock_price;
+        return $transaction_type === 'buy'
+            ? $this->processBuyTransaction($request)
+            : $this->processSellTransaction($request);
 
-        // Create a new stock transaction
-        StockTransaction::create([
-            'user_id' => $request->user_id,
-            'stock_name' => $request->stock_name,
-            'stock_price' => $request->stock_price,
-            'num_stock_traded' => $request->num_stock_traded,
-            'transaction_total' => $transaction_total,
-            'buy' => $isBuy,
-            'sell' => $isSell,
-            'timestamp' => now(),
-        ]);
-
-        // Redirect back with a success message
-        return redirect()->back()->with('success', 'Stock transaction added successfully!');
     }
 
     // Create one for selling stock also. Combined for now just for testing
+    private function processBuyTransaction(Request $request) : RedirectResponse
+    {
+        Log::error('In Process Buy');
+        $user = User::find($request->user_id);
+        $transaction_total = $request->num_stock_traded * $request->stock_price;
+
+        if ($user->balance < $transaction_total) {
+            return redirect()->back()->with('error', 'Insufficient Funds');
+        }
+
+        // Create a new DB transactions to update user balance and create transaction
+        DB::transaction(function () use ($user, $request, $transaction_total){
+            // Update the users balance
+            $user->balance -= $transaction_total;
+            $user->save();
+
+            StockTransaction::create([
+                'user_id' => $request->user_id,
+                'stock_name' => $request->stock_name,
+                'stock_price' => $request->stock_price,
+                'num_stock_traded' => $request->num_stock_traded,
+                'transaction_total' => $transaction_total,
+                'buy' => true,
+                'sell' => false,
+                'timestamp' => now(),
+            ]);
+        });
+
+
+        return redirect()->back()->with('success', 'Insufficient Funds');
+    }
+
+    private function processSellTransaction(Request $request) : RedirectResponse
+    {
+        Log::error('In Process Sell');
+        $user = User::find($request->user_id);
+        $transaction_total = $request->num_stock_traded * $request->stock_price;
+
+        if (!$this->userOwnsStock($user, $request->stock_name, $request->num_stock_traded)) {
+            return redirect()->back()->with('error', 'You do not own this stock.');
+        }
+
+        DB::transaction(function () use ($user, $request, $transaction_total) {
+            // Update user balance
+            $user->balance += $transaction_total;
+            $user->save();
+
+            StockTransaction::create([
+                'user_id' => $request->user_id,
+                'stock_name' => $request->stock_name,
+                'stock_price' => $request->stock_price,
+                'num_stock_traded' => $request->num_stock_traded,
+                'transaction_total' => $transaction_total,
+                'buy' => false,
+                'sell' => true,
+                'timestamp' => now(),
+            ]);
+        });
+
+        return redirect()->back()->with('success', 'Stock sold successfully!');
+    }
 }

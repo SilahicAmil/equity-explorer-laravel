@@ -20,9 +20,9 @@
                         @csrf
                         <input type="hidden" name="stock_name" value="{{ $stock->stock_name }}">
                         <input type="hidden" name="stock_price" value="{{ $stock->current_price }}">
-                        <input type="hidden" name="num_stock_traded" value="10"> <!-- default to 1 or you can adjust -->
+                        <input type="hidden" name="num_stock_traded" value="10">
                         <input type="hidden" name="transaction_total" value="{{ $stock->current_price }}">
-                        <input type="hidden" name="user_id" value="{{ auth()->id() }}"> <!-- assuming the user is authenticated -->
+                        <input type="hidden" name="user_id" value="{{ auth()->id() }}">
 
                         <label for="buy">Buy</label>
                         <label>
