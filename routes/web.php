@@ -12,7 +12,7 @@ Route::get('/stocks', [StockController::class, 'index'])
 
 Route::post('/stock-transactions', [StockTransactionController::class, 'store'])
     ->middleware('auth', 'verified')
-    ->name('stock-transactions.store');
+    ->name('stock-transactions');
 
 
 Route::view('dashboard', 'dashboard')

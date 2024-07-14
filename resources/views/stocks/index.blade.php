@@ -16,14 +16,17 @@
                 <td>{{ $stock->stock_name }}</td>
                 <td>{{ $stock->current_price }}</td>
                 <td>
-                    <form action="{{ route('stock-transactions.store') }}" method="POST">
+                    <form action="{{ route('stock-transactions') }}" method="POST">
                         @csrf
                         <input type="hidden" name="stock_name" value="{{ $stock->stock_name }}">
                         <input type="hidden" name="stock_price" value="{{ $stock->current_price }}">
-                        <input type="hidden" name="num_stock_traded" value="10">
                         <input type="hidden" name="transaction_total" value="{{ $stock->current_price }}">
                         <input type="hidden" name="user_id" value="{{ auth()->id() }}">
 
+                        <label for="num_stock_traded"></label>
+                        <label>
+                            <input type="number" min="0" max="9999999" name="num_stock_traded">
+                        </label>
                         <label for="buy">Buy</label>
                         <label>
                             <input type="radio" name="transaction_type" value="buy" required>
