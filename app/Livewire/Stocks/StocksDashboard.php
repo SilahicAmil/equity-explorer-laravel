@@ -82,7 +82,7 @@ class StocksDashboard extends Component
             }
         });
 
-        // Optionally, reset form fields after successful submission
+        // Reset form fields after successful submission
         $this->reset();
         $this->dispatch('transactionCompleted');
     }
@@ -96,7 +96,7 @@ class StocksDashboard extends Component
             return;
         }
 
-        // Update user balance and create transaction record within transaction block
+        // Update user balance and create transaction record for consistency
         DB::transaction(function () use ($formData, $user, $transaction_total) {
             $user->balance -= $transaction_total;
             $user->save();
@@ -134,7 +134,7 @@ class StocksDashboard extends Component
             return;
         }
 
-        // Update user balance and create transaction record within transaction block
+        // Update user balance and create transaction record for consistency
         DB::transaction(function () use ($formData, $user, $transaction_total) {
             $user->balance += $transaction_total;
             $user->save();
