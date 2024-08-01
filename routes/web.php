@@ -1,19 +1,14 @@
 <?php
 
+use App\Livewire\Stocks\StocksDashboard;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\StockController;
-use App\Http\Controllers\StockTransactionController;
+
 
 Route::view('/', 'welcome');
 
-Route::get('/stocks', [StockController::class, 'index'])
+Route::get('/stocks', [\App\Http\Controllers\StockController::class, 'index'])
     ->middleware('auth', 'verified')
-    ->name('Market');
-
-Route::post('/stock-transactions', [StockTransactionController::class, 'store'])
-    ->middleware('auth', 'verified')
-    ->name('stock-transactions');
-
+    ->name('stocks');
 
 Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
